@@ -41,7 +41,7 @@ bullet_img = pygame.image.load("assets\wool64x64.png")
 bullet_x = 0
 bullet_y = 480
 bullet_x_change = 0
-bullet_y_change = 2
+bullet_y_change = 10
 bullet_state = "ready"
 
 score = 0
@@ -61,11 +61,11 @@ player_img = pygame.image.load("assets\kyle64x64.png")
 player_x_change = 0
 
 # Coordenadas del Boss.
-boss_x = 50
-boss_y = 50 
+boss_x = 0
+boss_y = 0
 boss_img = pygame.image.load("assets\Kyra47.png")
-boss_x_change = 0.5
-boss_y_change = 10
+boss_x_change = 0.1
+boss_y_change = 0.1
 boss_life = 3
 
 movimiento = ['basico','arriba y abajo','basico'] 
@@ -93,7 +93,7 @@ for item in range(number_enemies):
     enemy_img.append(pygame.image.load("assets\mutant64x64.png"))
     enemy_x.append(random.randint(0, 730))
     enemy_y.append(random.randint(50, 150))
-    enemy_x_change.append(1)
+    enemy_x_change.append(4)
     enemy_y_change.append(30)
 
 # Función para llamar al personaje en el Game Loop.
@@ -134,6 +134,7 @@ def you_win (x, y) :
 
 # Game loop: para correr y retener el videojuego.
 running = True
+clock = pygame.time.Clock()
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -142,10 +143,11 @@ while running:
 # Movimiento al presionar la tecla izquierda.
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                player_x_change = -0.8
+                player_x_change = -10
             if event.key == pygame.K_RIGHT:
-                player_x_change = 0.8
-            if event.key == pygame.K_SPACE:
+                player_x_change = 10
+            if event.key == pygame.K_SPACE and bullet_state == 'ready':
+                bullet_x = player_x
                 if bullet_state == "ready":
                     bullet_sound = mixer.Sound("shoot-ship.wav")
                     bullet_sound.set_volume(0.15)
@@ -161,9 +163,7 @@ while running:
 # Color del fondo de pantalla.
     rgb = (41, 60, 94)
     screen.fill(rgb)
-
     screen.blit(background, (0, 0))
-
     player_x += player_x_change
 
 # Límites de la nave en pantalla.
@@ -185,39 +185,64 @@ while running:
                 # patron = 'arriba y abajo'
             elif patron == 'basico':  
                 if boss_y >= 150:
-                    boss_y = 0
-                    boss_x = 0
+                    boss_y = random.randint(50,100)
+                    boss_x = random.randint(50,100)
                     patron = "Cambio"
                         
                 if boss_x <= 0:
-                    boss_x_change = 0.3
-                    boss_y_change = 20
+                    boss_x_change = 0.5
+                    boss_y_change = 40
                     boss_y += boss_y_change
                         
                 elif boss_x >= 736:
-                    boss_x_change = -0.3
-                    boss_y_change = 20
+                    boss_x_change = -0.5
+                    boss_y_change = 40
                     boss_y += boss_y_change
 
                 boss_x += boss_x_change
             elif patron == 'arriba y abajo':
-                if boss_x >= 736:
+                
+                if boss_x >= 726:
                     boss_x = 0
                     boss_y = 0
                     patron = "Cambio"
+                
+                if boss_x >= 125 :
+                    boss_y -=  math.acos(boss_x_change)
+                    boss_x +=  math.cos(boss_x_change)
 
-                if boss_y <= random.randint (0, 50):
-                    boss_y_change = 0.1 
-                    boss_x_change = 20
-                    boss_x += boss_x_change
+                if boss_x >= 200 :
+                    boss_y +=  math.cos(boss_x_change)
+                    boss_x +=  math.cos(boss_x_change)
+
+                if boss_x >= 400 :
+                    boss_y -=  math.acos(boss_x_change)
+                    boss_x +=  math.cos(boss_x_change)
+
+                if boss_x >= 600 :
+                    boss_y +=  math.cos(boss_x_change)
+                    boss_x +=  math.cos(boss_x_change)
+
+                if boss_y >= 200:
+                     boss_y -=  math.acos(boss_x_change)
+                     boss_x +=  math.cos(boss_x_change)
+
+                if boss_y <= 10 :
+                    boss_y += math.cos(boss_x_change)
+                    boss_x += math.acos(boss_x_change)
+
+                if boss_y <= 0 :
+                    boss_y += math.cos(boss_x_change)
+                    boss_x += math.acos(boss_x_change)
                         
-                elif boss_y >= random.randint(120,150):
-                    boss_y_change = -0.1 
-                    boss_x_change = 20
+                if boss_y >= 100 :
+                    boss_y += math.cos(boss_x_change)
+                    boss_x += math.acos(boss_x_change)
+                    
 
-                    boss_x += boss_x_change
-
-                boss_y += boss_y_change
+                # boss_y += boss_y_change
+                boss_y += math.cos(boss_x_change)
+                boss_x += math.acos(boss_x_change)
             
             collision = is_collision(boss_x, boss_y, bullet_x, bullet_y)
 
@@ -245,11 +270,11 @@ while running:
             enemy_x[item] += enemy_x_change[item]
 
             if enemy_x[item] <= 0:
-                enemy_x_change[item] = 0.2
+                enemy_x_change[item] = 4
                 enemy_y[item] += enemy_y_change[item]
             
             elif enemy_x[item] >= 736:
-                enemy_x_change[item] = -0.2
+                enemy_x_change[item] = -4
                 enemy_y[item] += enemy_y_change[item]
 
     # Colisiones de disparo hacia el enemigo.
@@ -282,6 +307,6 @@ while running:
         you_win(go_x, go_y)
 
     player(player_x, player_y)
-
+    clock.tick(60)
     pygame.display.update()
 pygame.quit()
