@@ -68,9 +68,20 @@ boss_x_change = 0.1
 boss_y_change = 0.1
 boss_life = 3
 
+# Balas del jefe
+bullet_boss_img = pygame.image.load("boots64x64.png")
+bullet_boss_x = 50
+bullet_boss_y = 0
+bullet_boss_x_change = 0
+bullet_boss_y_change = 10
+bullet_boss_state = "ready"
+
+
+# Patrones de movimiento del jefe
 movimiento = ['basico','arriba y abajo','basico'] 
 
 # Variable para decidir el patrón del enemigo
+boss_num_random = 0
 boss_random_move = 0
 patron = 'Cambio'
 
@@ -113,6 +124,83 @@ def fire(x, y):
     global bullet_state
     bullet_state = "fire"
     screen.blit(bullet_img, (x + 16, y + 10))
+
+# Función de disparo de la nave.
+def fireBoss(x, y):
+    global bullet_boss_state
+    bullet_boss_state = "fire"
+    screen.blit(bullet_boss_img, (x + 16, y + 10))
+
+# patron del jefe Boss
+
+def patron_boss (num_random):
+    global patron, boss_x, boss_y, boss_x_change, boss_y_change
+    if patron == "Cambio":
+        for i in range(len(movimiento)):
+            if i == num_random:
+                patron = movimiento[i]
+                # print(patron)
+                # patron = 'arriba y abajo'
+    elif patron == 'basico':  
+        if boss_y >= 70:
+            boss_y = random.randint(50,100)
+            boss_x = random.randint(50,100)
+            patron = "Cambio"
+                        
+        if boss_x <= 0:
+                    boss_x_change = 0.5
+                    boss_y_change = 40
+                    boss_y += boss_y_change
+                        
+        elif boss_x >= 736:
+            boss_x_change = -0.5
+            boss_y_change = 40
+            boss_y += boss_y_change
+
+        boss_x += boss_x_change
+    elif patron == 'arriba y abajo':
+                
+        if boss_x >= 726:
+                    boss_x = 0
+                    boss_y = 0
+                    patron = "Cambio"
+                
+        if boss_x >= 125 :
+                    boss_y -=  math.acos(boss_x_change)
+                    boss_x +=  math.cos(boss_x_change)
+
+        if boss_x >= 200 :
+                    boss_y +=  math.cos(boss_x_change)
+                    boss_x +=  math.cos(boss_x_change)
+
+        if boss_x >= 400 :
+                    boss_y -=  math.acos(boss_x_change)
+                    boss_x +=  math.cos(boss_x_change)
+
+        if boss_x >= 600 :
+                    boss_y +=  math.cos(boss_x_change)
+                    boss_x +=  math.cos(boss_x_change)
+
+        if boss_y >= 200:
+                     boss_y -=  math.acos(boss_x_change)
+                     boss_x +=  math.cos(boss_x_change)
+
+        if boss_y <= 10 :
+                    boss_y += math.cos(boss_x_change)
+                    boss_x += math.acos(boss_x_change)
+
+        if boss_y <= 0 :
+                    boss_y += math.cos(boss_x_change)
+                    boss_x += math.acos(boss_x_change)
+                        
+        if boss_y >= 100 :
+                    boss_y += math.cos(boss_x_change)
+                    boss_x += math.acos(boss_x_change)
+                    
+
+                # boss_y += boss_y_change
+        boss_y += math.cos(boss_x_change)
+        boss_x += math.acos(boss_x_change)
 
 # Función de la colisión al disparar. 
 def is_collision (enemy_x, enemy_y, bullet_x, bullet_y):
@@ -177,72 +265,7 @@ while running:
         for life in range(boss_life):  
             boss_random_move = random.randint(0,2)
             
-            if patron == "Cambio":
-                for i in range(len(movimiento)):
-                    if i == boss_random_move:
-                        patron = movimiento[i]
-                        print(patron)
-                # patron = 'arriba y abajo'
-            elif patron == 'basico':  
-                if boss_y >= 150:
-                    boss_y = random.randint(50,100)
-                    boss_x = random.randint(50,100)
-                    patron = "Cambio"
-                        
-                if boss_x <= 0:
-                    boss_x_change = 0.5
-                    boss_y_change = 40
-                    boss_y += boss_y_change
-                        
-                elif boss_x >= 736:
-                    boss_x_change = -0.5
-                    boss_y_change = 40
-                    boss_y += boss_y_change
-
-                boss_x += boss_x_change
-            elif patron == 'arriba y abajo':
-                
-                if boss_x >= 726:
-                    boss_x = 0
-                    boss_y = 0
-                    patron = "Cambio"
-                
-                if boss_x >= 125 :
-                    boss_y -=  math.acos(boss_x_change)
-                    boss_x +=  math.cos(boss_x_change)
-
-                if boss_x >= 200 :
-                    boss_y +=  math.cos(boss_x_change)
-                    boss_x +=  math.cos(boss_x_change)
-
-                if boss_x >= 400 :
-                    boss_y -=  math.acos(boss_x_change)
-                    boss_x +=  math.cos(boss_x_change)
-
-                if boss_x >= 600 :
-                    boss_y +=  math.cos(boss_x_change)
-                    boss_x +=  math.cos(boss_x_change)
-
-                if boss_y >= 200:
-                     boss_y -=  math.acos(boss_x_change)
-                     boss_x +=  math.cos(boss_x_change)
-
-                if boss_y <= 10 :
-                    boss_y += math.cos(boss_x_change)
-                    boss_x += math.acos(boss_x_change)
-
-                if boss_y <= 0 :
-                    boss_y += math.cos(boss_x_change)
-                    boss_x += math.acos(boss_x_change)
-                        
-                if boss_y >= 100 :
-                    boss_y += math.cos(boss_x_change)
-                    boss_x += math.acos(boss_x_change)
-                    
-
-                # boss_y += boss_y_change
-                boss_y += math.cos(boss_x_change)
-                boss_x += math.acos(boss_x_change)
+            patron_boss(boss_random_move)
             
             collision = is_collision(boss_x, boss_y, bullet_x, bullet_y)
 
@@ -250,11 +273,41 @@ while running:
                 bullet_y = 480
                 bullet_state = "ready"
                 boss_life -= 1
-                
                 explosion_sound.play()
                 explosion_sound.set_volume(0.2)
                 if boss_life <= 0 :
                     break
+            
+            boss_num_random = random.randint(0,100)
+            if boss_num_random == 1 and bullet_boss_state == 'ready':
+                bullet_boss_x = boss_x
+                if bullet_boss_state == "ready":
+                    bullet_sound = mixer.Sound("shoot-ship.wav")
+                    bullet_sound.set_volume(0.15)
+                    bullet_sound.play()
+                    bullet_boss_x = boss_x
+                fireBoss (bullet_boss_x, bullet_boss_y)
+
+             # Carga de la bala del jefe
+            if bullet_boss_state == "fire":
+                fireBoss(bullet_boss_x, bullet_boss_y)
+                bullet_boss_y += bullet_boss_y_change
+            
+            if bullet_boss_y >= 536:
+                bullet_boss_y = 20
+                bullet_boss_state = "ready"
+            
+            collision_player = is_collision(player_x, player_y, bullet_boss_x, bullet_boss_y)
+
+            if collision_player:
+                bullet_boss_y = 30
+                bullet_boss_state = "ready"
+                explosion_sound.play()
+                explosion_sound.set_volume(0.2)
+                
+                game_over(go_x, go_y)
+                break
+                
 
             boss(boss_x, boss_y)
     else:
@@ -301,10 +354,13 @@ while running:
         fire(bullet_x, bullet_y)
         bullet_y -= bullet_y_change
 
+   
+
     show_score(score_x, score_y)
 
-    if boss_life == 0:
+    if boss_life == 0 :
         you_win(go_x, go_y)
+    
 
     player(player_x, player_y)
     clock.tick(60)
